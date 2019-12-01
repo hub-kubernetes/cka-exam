@@ -1,0 +1,1 @@
+You are installing NGINX with a volume as configmap

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: toleration-pod
+spec:
+ containers:
+ - name: nginx
+   image: nginx
+ tolerations:
+ - key: "scanner-app"
+   operator: "Equal"
+   value: "true"
+   effect: "NoSchedule"
+

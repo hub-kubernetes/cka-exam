@@ -1,0 +1,11 @@
+nginximagename: nginx
+nginximagetag: 1.15.4
+replicas: 3
+ports:
+  containerport: 80
+nginxname: nginx
+deploymentlabels:
+  app: frontend
+  tier: webtier
+  application: nginx
+

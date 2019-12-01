@@ -1,0 +1,5 @@
+nginximage: nginx:latest
+replicas: 3
+ports:
+  containerport: 80
+nginxname: nginx
