@@ -580,7 +580,7 @@ Click the + Sign and select Import
 
 We will now import the official grafana dashboard for promethus - 
 
-Put - ` 159 ` in the Grafana.com Dashboard section and it will upload the pre-existing dashboard 
+Put - ` 159 ` or `6417` or `3662` in the Grafana Dashboard section and it will upload the pre-existing dashboard 
 
 Give a name for the dashboard 
 
