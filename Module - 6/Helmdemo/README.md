@@ -405,6 +405,14 @@ The link is as below :
 
 https://github.com/helm/charts/tree/master/stable
 
+
+Adding stable repository to helm 
+
+```
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+
+```
+
 Lets install jenkins using helm chart - 
 
 `   helm install --name my-release stable/jenkins`
