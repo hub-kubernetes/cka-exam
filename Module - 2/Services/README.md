@@ -91,3 +91,10 @@ kubectl expose deploy nginx --port=80 --type=LoadBalancer --name=nginx-lb
 ```
 
 To view the services use the `kubectl get service` command 
+
+## --external-ip flag
+
+```
+kubectl run nginx --image=nginx
+kubectl expose pod nginx --external-ip={Routable IP address of your VM} --port=80 --target-port=80
+```
