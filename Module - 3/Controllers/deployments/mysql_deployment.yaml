@@ -6,6 +6,7 @@ metadata:
     app: mysql
 spec:
   replicas: 3 
+  minReadySeconds: 10
   revisionHistoryLimit: 5 
   selector:
     matchLabels:
