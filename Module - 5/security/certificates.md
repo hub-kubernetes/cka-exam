@@ -142,6 +142,82 @@ kubectl config use-context kubernetes-admin@kubernetes
 
 Refer - https://kubernetes.io/docs/reference/access-authn-authz/authorization/#authorization-modules for different authorization modules in kubernetes
 
+For our demo - we will use clusterrole in order to give a cluster level network policies access to the user 
+
+```
+
+cat > network-admin-role.yaml <<EOF
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: network-admin
+rules:
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - networkpolicies
+  verbs:
+  - '*'
+- apiGroups:
+  - extensions
+  resources:
+  - networkpolicies
+  verbs:
+  - '*'
+EOF
+
+```
+
+Create the new clusterrole 
+
+```
+kubectl create -f network-admin-role.yaml
+
+```
+
+
+You can now create a clusterrolebinding to the group - network-admin
+
+```
+kubectl create clusterrolebinding network-admin --clusterrole=network-admin --group=network-admin
+
+```
+
+
+Verify the access again - 
+
+Switch the context - 
+
+```
+kubectl config use-context network-admin
+```
+
+Execute the GET command in any namespace 
+
+```
+kubectl get networkpolicies
+No resources found in default namespace.
+
+
+kubectl get pods 
+Error from server (Forbidden): pods is forbidden: User "networkadmin" cannot list resource "pods" in API group "" in the namespace "default"
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
