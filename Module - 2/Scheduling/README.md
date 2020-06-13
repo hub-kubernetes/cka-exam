@@ -42,12 +42,12 @@ func (f *ConfigFactory) getNextPod() *v1.Pod {
 
 > Label any one node - 
 
-` kubectl label node knode1 app=frontend `
+` kubectl label node worker1 app=frontend `
 
 ```
-kubectl get nodes knode1 --show-labels 
+kubectl get nodes worker1 --show-labels 
 NAME     STATUS   ROLES    AGE    VERSION   LABELS
-knode1   Ready    <none>   5d5h   v1.14.2   **app=frontend**,beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=knode1,kubernetes.io/os=linux
+worker1   Ready    <none>   5d5h   v1.14.2   **app=frontend**,beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=worker1,kubernetes.io/os=linux
 ```
 
 > We will now deploy a nginx Pod that has the attribute - nodeSelector which matches the label **app=frontend**
@@ -58,13 +58,13 @@ knode1   Ready    <none>   5d5h   v1.14.2   **app=frontend**,beta.kubernetes.io/
 
 ```
 kubectl get pods -o wide 
-nginx                  1/1     Running     0          34s   192.168.1.22    knode1   <none>           <none>
+nginx                  1/1     Running     0          34s   192.168.1.22    worker1   <none>           <none>
 
 ```
 
 > To remove a label from a node - 
 
-` kubectl edit node knode1`
+` kubectl edit node worker1`
 
 > Remove the entry app=frontend from .metadata.labels section and save the node config. 
 
@@ -89,18 +89,18 @@ nginx   0/1     Pending   0          7s
 
 >	Lets add some labels to our nodes - 
 
-`	kubectl label node knode1 zone=us-central-1`
+`	kubectl label node worker1 zone=us-central-1`
 
-`	kubectl label node knode2 zone=eu-west-1`
+`	kubectl label node worker2 zone=eu-west-1`
 
-`	kubectl label node knode2 drbackup=europe`
+`	kubectl label node worker2 drbackup=europe`
 
 ~~~
-kubectl get nodes knode1 knode2 --show-labels
+kubectl get nodes worker1 worker2 --show-labels
 NAME     STATUS   ROLES    AGE    VERSION   LABELS
-knode1   Ready    <none>   5d6h   v1.14.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=knode1,kubernetes.io/os=linux,zone=us-central-1
+worker1   Ready    <none>   5d6h   v1.14.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=worker1,kubernetes.io/os=linux,zone=us-central-1
 NAME     STATUS   ROLES    AGE    VERSION   LABELS
-knode2   Ready    <none>   5d6h   v1.14.1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,drbackup=europe,kubernetes.io/arch=amd64,kubernetes.io/hostname=knode2,kubernetes.io/os=linux,zone=eu-west-1
+worker2   Ready    <none>   5d6h   v1.14.1   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,drbackup=europe,kubernetes.io/arch=amd64,kubernetes.io/hostname=worker2,kubernetes.io/os=linux,zone=eu-west-1
 
 ~~~
 
@@ -149,12 +149,12 @@ Observations
 ~~~
 kubectl get pods -o wide
 NAME                  READY   STATUS    RESTARTS   AGE   IP              NODE     NOMINATED NODE   READINESS GATES
-nginx-affinity-node   1/1     Running   0          6s    192.168.2.204   knode2   <none>           <none>
+nginx-affinity-node   1/1     Running   0          6s    192.168.2.204   worker2   <none>           <none>
 ~~~
 
->	The pod is now created on knode2. Knode2 satisfies the criteria of the hard rule - zone=us-west-1 and the soft rule - drbackup=europe. 
+>	The pod is now created on worker2. worker2 satisfies the criteria of the hard rule - zone=us-west-1 and the soft rule - drbackup=europe. 
 
->	Lets now see what happens when we delete the label drbackup=europe from knode2 and create the same pod - 
+>	Lets now see what happens when we delete the label drbackup=europe from worker2 and create the same pod - 
 
 >	Lets delete the pod first - 
 
@@ -162,7 +162,7 @@ nginx-affinity-node   1/1     Running   0          6s    192.168.2.204   knode2 
 
 >	We will now delete the label - drbackup=europe 
 
-`	kubectl label node knode2 drbackup-`
+`	kubectl label node worker2 drbackup-`
 
 >	Recreate the pod - 
 
@@ -176,12 +176,12 @@ Observations -
 ```
 kubectl get pods -o wide
 NAME                  READY   STATUS    RESTARTS   AGE   IP             NODE     NOMINATED NODE   READINESS GATES
-nginx-affinity-node   1/1     Running   0          3s    192.168.1.11   knode1   <none>           <none>
+nginx-affinity-node   1/1     Running   0          3s    192.168.1.11   worker1   <none>           <none>
 
 
 kubectl get pods -o wide
 NAME                  READY   STATUS    RESTARTS   AGE   IP            NODE     NOMINATED NODE   READINESS GATES
-nginx-affinity-node   1/1     Running   0          8s    192.168.2.8   knode2   <none>           <none>
+nginx-affinity-node   1/1     Running   0          8s    192.168.2.8   worker2   <none>           <none>
 
 ```
 
@@ -203,18 +203,18 @@ nginx-affinity-node   1/1     Running   0          8s    192.168.2.8   knode2   
 ~~~
 kubectl get pods --show-labels -o wide 
 NAME                           READY   STATUS    RESTARTS   AGE   IP             NODE     NOMINATED NODE   READINESS GATES   LABELS
-redis-cache-7d6d684f97-s7zrb   1/1     Running   0          48s   192.168.1.27   knode1   <none>           <none>            app=cache
+redis-cache-7d6d684f97-s7zrb   1/1     Running   0          48s   192.168.1.27   worker1   <none>           <none>            app=cache
 ~~~
 
->	We will now deploy another redis pod with the label - app=web-cache which denotes that this redis deployment will server only web traffic. The nodeselector on redis-cache-web is set as knode2, basically any node on which our previous deployment doesnt run. 
+>	We will now deploy another redis pod with the label - app=web-cache which denotes that this redis deployment will server only web traffic. The nodeselector on redis-cache-web is set as worker2, basically any node on which our previous deployment doesnt run. 
 
 `	kubectl create -f redis-cache-web.yaml`
 
 ~~~
 kubectl get pods -owide 
 NAME                               READY   STATUS    RESTARTS   AGE     IP              NODE     NOMINATED NODE   READINESS GATES
-redis-cache-7d6d684f97-s7zrb       1/1     Running   0          5m58s   192.168.1.27    knode1   <none>           <none>
-web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          9s      192.168.2.210   knode2   <none>           <none>
+redis-cache-7d6d684f97-s7zrb       1/1     Running   0          5m58s   192.168.1.27    worker1   <none>           <none>
+web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          9s      192.168.2.210   worker2   <none>           <none>
 ~~~
 
 >	We will now deploy a dummy application that will have both - affinity and antiaffinity as below - 
@@ -251,15 +251,15 @@ Observations :
 ~~~
 kubectl get pods -o wide 
 NAME                               READY   STATUS    RESTARTS   AGE     IP              NODE     NOMINATED NODE   READINESS GATES
-redis-cache-7d6d684f97-s7zrb       1/1     Running   0          11m     192.168.1.27    knode1   <none>           <none>
-web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          5m13s   192.168.2.210   knode2   <none>           <none>
-web-server-f98668944-grtkv         1/1     Running   0          8s      192.168.1.30    knode1   <none>           <none>
-web-server-f98668944-rzmws         1/1     Running   0          8s      192.168.1.29    knode1   <none>           <none>
-web-server-f98668944-wzlsr         1/1     Running   0          8s      192.168.1.28    knode1   <none>           <none>
+redis-cache-7d6d684f97-s7zrb       1/1     Running   0          11m     192.168.1.27    worker1   <none>           <none>
+web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          5m13s   192.168.2.210   worker2   <none>           <none>
+web-server-f98668944-grtkv         1/1     Running   0          8s      192.168.1.30    worker1   <none>           <none>
+web-server-f98668944-rzmws         1/1     Running   0          8s      192.168.1.29    worker1   <none>           <none>
+web-server-f98668944-wzlsr         1/1     Running   0          8s      192.168.1.28    worker1   <none>           <none>
 ~~~
 
 
->	As we understood - all the webserver replicas are now running on knode1 - which also serves the pod redis-cache that has the label set as - app=cache. No pods are running on the node knode2 where the redis pod is running with the label - app=web-cache 
+>	As we understood - all the webserver replicas are now running on worker1 - which also serves the pod redis-cache that has the label set as - app=cache. No pods are running on the node worker2 where the redis pod is running with the label - app=web-cache 
 
 >	Lets delete the nginx deployment - 
 
@@ -272,26 +272,25 @@ web-server-f98668944-wzlsr         1/1     Running   0          8s      192.168.
 ```
 kubectl get pods --show-labels -o wide 
 NAME                               READY   STATUS    RESTARTS   AGE   IP              NODE     NOMINATED NODE   READINESS GATES   LABELS
-redis-cache-2-7495666dfc-pd6kd     1/1     Running   0          11s   192.168.2.211   knode2   <none>           <none>            app=cache,pod-template-hash=7495666dfc
-redis-cache-7d6d684f97-s7zrb       1/1     Running   0          16m   192.168.1.27    knode1   <none>           <none>            app=cache,pod-template-hash=7d6d684f97
-web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          10m   192.168.2.210   knode2   <none>           <none>            app=web-cache,pod-template-hash=856b7bc58b
+redis-cache-2-7495666dfc-pd6kd     1/1     Running   0          11s   192.168.2.211   worker2   <none>           <none>            app=cache,pod-template-hash=7495666dfc
+redis-cache-7d6d684f97-s7zrb       1/1     Running   0          16m   192.168.1.27    worker1   <none>           <none>            app=cache,pod-template-hash=7d6d684f97
+web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          10m   192.168.2.210   worker2   <none>           <none>            app=web-cache,pod-template-hash=856b7bc58b
 ```
 
->	Create the nginx deployment once again to verify antiaffinity. Webserver pod will still repel knode2
+>	Create the nginx deployment once again to verify antiaffinity. Webserver pod will still repel worker2
 
 ~~~
 kubectl create -f nginx.yaml 
 
 kubectl get pods -o wide
 NAME                               READY   STATUS    RESTARTS   AGE     IP              NODE     NOMINATED NODE   READINESS GATES
-redis-cache-2-7495666dfc-pd6kd     1/1     Running   0          2m29s   192.168.2.211   knode2   <none>           <none>
-redis-cache-7d6d684f97-s7zrb       1/1     Running   0          19m     192.168.1.27    knode1   <none>           <none>
-web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          13m     192.168.2.210   knode2   <none>           <none>
-web-server-f98668944-5dljp         1/1     Running   0          13s     192.168.1.32    knode1   <none>           <none>
-web-server-f98668944-77q5j         1/1     Running   0          13s     192.168.1.31    knode1   <none>           <none>
-web-server-f98668944-k78mb         1/1     Running   0          13s     192.168.1.33    knode1   <none>           <none>
+redis-cache-2-7495666dfc-pd6kd     1/1     Running   0          2m29s   192.168.2.211   worker2   <none>           <none>
+redis-cache-7d6d684f97-s7zrb       1/1     Running   0          19m     192.168.1.27    worker1   <none>           <none>
+web-redis-cache-856b7bc58b-ksf7t   1/1     Running   0          13m     192.168.2.210   worker2   <none>           <none>
+web-server-f98668944-5dljp         1/1     Running   0          13s     192.168.1.32    worker1   <none>           <none>
+web-server-f98668944-77q5j         1/1     Running   0          13s     192.168.1.31    worker1   <none>           <none>
+web-server-f98668944-k78mb         1/1     Running   0          13s     192.168.1.33    worker1   <none>           <none>
 ~~~
-
 
 
 
