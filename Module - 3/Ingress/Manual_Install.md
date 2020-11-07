@@ -15,44 +15,42 @@ Nodeport Service type
 
 ## 1. Install ingress controller on your Kubernetes cluster
 
-    a. git clone https://github.com/nginxinc/kubernetes-ingress.git (official kubernetes nginx github repository)
-    
-    b. cd kubernetes-ingress/deployments
-    
-    c. Create the namespace and service account - kubectl apply -f common/ns-and-sa.yaml
-    
-    d. Create the secret for TLS certificate - kubectl apply -f common/default-server-secret.yaml
-    
-    e. Create the configmap for Nginx controller configuration - kubectl apply -f common/nginx-config.yaml
-    
-    f. Configure RBAC by creating a cluster role - kubectl apply -f rbac/rbac.yaml
-    
-    g. Deploy the ingress controller as a deployment - kubectl apply -f deployment/nginx-ingress.yaml
-    
-    h. You can also use daemonset to deploy the controller, we are using deployment as the controller to deploy ingress 
-    
-    i. Verify the ingress controller is running - kubectl get pods --namespace=nginx-ingress
-    
-    j. Expose the ingress controller by creating a service of type NodePort - kubectl create -f service/nodeport.yaml
-    
-    k. In case you are using managed Kubernetes Instances using GKE / AWS / AZURE you can create the service type as 
-       Loadbalancer
-    
-    l. Verify the service - kubectl get svc -n=nginx-ingress
-    
-        nginx-ingress   NodePort   10.104.170.46   <none>        80:30982/TCP,443:31542/TCP   2m2s
-        
-    m. Note the HTTP and HTTPS port (30982 and 31542). 
-    
-    n. Get the internal IP address of the ingress controller - kubectl get pods --namespace=nginx-ingress -o wide
-    
-        nginx-ingress-755df5c4cc-2pgbv   1/1     Running   0          5m21s   192.168.1.77   knode1   <none>           <none>
+```
+git clone https://github.com/nginxinc/kubernetes-ingress/
+cd kubernetes-ingress/deployments
+git checkout v1.9.0```
 
-    o. Note the internal IP address - 192.168.1.77
-   
-Now we have successfully installed NGINX Ingress controller. Lets now see the demo where we will route 3 services 
-(nginx based service) using ingress. 
- 
+kubectl apply -f common/ns-and-sa.yaml
+
+kubectl apply -f rbac/rbac.yaml
+
+kubectl apply -f rbac/ap-rbac.yaml
+
+kubectl apply -f common/default-server-secret.yaml
+
+kubectl apply -f common/nginx-config.yaml
+
+kubectl apply -f common/ingress-class.yaml
+
+kubectl apply -f common/vs-definition.yaml
+
+kubectl apply -f common/vsr-definition.yaml
+
+kubectl apply -f common/ts-definition.yaml
+
+kubectl apply -f common/policy-definition.yaml
+
+# For TCP and UDP loadbalancing features 
+
+kubectl apply -f common/gc-definition.yaml
+kubectl apply -f common/global-configuration.yaml
+
+kubectl apply -f deployment/nginx-ingress.yaml
+
+kubectl create -f service/nodeport.yaml
+
+```
+
 ## 2.  Deploy the dummy application 
 
     a. Clone this repository
