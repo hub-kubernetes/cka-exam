@@ -5,7 +5,7 @@
 > Its important to note that the functionality of your application doesnot change in either cases, i.e. if you deploy a multicontainer pod or if you just deploy individual pods. Multicontainer pods are used for simpler communication between closely coupled applications. Since containers within the same pod share the same **user-space**, it becomes easier for two containers to interact with each other using volumes, queues, semaphores etc. 
 
 Below are some examples of multicontainer pod design patterns 
-
+very good
 ##  SideCar pattern
 
 > In this pattern, you deploy your primary APP container and one or more non-app containers. These non-app containers doesnt provide any significant enhancement to your primary application. These additional containers can be logging agents(logstash), monitoring agent (appdymanics) or any custom watcher or network sniffer containers. Since these containers share the same volumes, the non-app container can fetch data written by your app container and can be used to send these data to backend storages (persistent volumes, elastic search, stackdriver, datadog, etc ) 
